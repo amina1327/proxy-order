@@ -1,28 +1,30 @@
 const express = require("express");
 const cors = require("cors");
+const bodyParser = require("body-parser");
 const fetch = require("node-fetch");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-
 app.use(cors());
-app.use(express.json());
-
-const targetURL = "https://script.google.com/macros/s/AKfycbw9M1CMXP2N2geKFNqYx-pmFapFySLwVak5UQXlNHwhFT9_GZaa2sNI1lyEE5MYtgg9pg/exec";
+app.use(bodyParser.json());
 
 app.post("/", async (req, res) => {
+  const { name, phone, wilaya, quantity, ip } = req.body;
+
   try {
-    const response = await fetch(targetURL, {
+    const response = await fetch(`https://script.google.com/macros/s/AKfycbw9M1CMXP2N2geKFNqYx-pmFapFySLwVak5UQXlNHwhFT9_GZaa2sNI1lyEE5MYtgg9pg/exec?ip=${ip}`, {
       method: "POST",
-      body: JSON.stringify(req.body),
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name, phone, wilaya, quantity }),
     });
-    const data = await response.json();
-    res.json(data);
-  } catch (err) {
-    console.error("Proxy error:", err.message);
+
+    const result = await response.json();
+    res.json(result); // ✅ إعادة الرد كما هو للمتصفح
+  } catch (error) {
+    console.error("❌ خطأ في الخادم الوسيط:", error);
     res.status(500).json({ success: false, error: "حدث خطأ في الخادم الوسيط" });
   }
 });
 
-app.listen(PORT, () => console.log(`Proxy on port ${PORT}`));
+app.listen(3000, () => console.log("✅ Proxy server running on port 3000"));
