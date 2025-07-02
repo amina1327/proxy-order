@@ -16,7 +16,7 @@ app.post("/", async (req, res) => {
       { headers: { 'Content-Type': 'application/json' } }
     );
 
-    res.status(200).json(response.data);
+    return res.json(response.data);
   } catch (error) {
     console.error("❌ خطأ في الخادم الوسيط:", error.message);
     res.status(500).json({ success: false, error: error.message });
